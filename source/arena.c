@@ -1,6 +1,7 @@
 //  Copyright (c) 2025 Quqin
 
 #include "arena.h"
+#include <stdint.h>
 
 struct region
 {
@@ -14,13 +15,16 @@ struct region
 
 Region *createRegion (size_t capacity)
 {
-  // Multiply the rounded byte count by uintptr_t then add region size
-  size_t data_size = sizeof(Region) + sizeof(uintptr_t) * capacity;
+  if (capacity == 0) return NULL;
 
-  Region *region = malloc(data_size);
-  ARENA_ASSERT(region);
+  // Overflow guard
+  if (capacity > (SIZE_MAX - sizeof(Region)) / sizeof(uintptr_t)) return NULL;
 
-  // Initialize default member
+  size_t bytes = sizeof(Region) + sizeof(uintptr_t) * capacity;
+
+  Region *region = (Region *)malloc(bytes);
+  if (!region) return NULL;
+
   region->next_ = NULL;
   region->capacity_ = capacity;
   region->count_ = 0;
@@ -28,42 +32,48 @@ Region *createRegion (size_t capacity)
   return region;
 }
 
-void freeRegion (Region *r) { free(r); }
-
-#define ARENA_DEFAULT_SIZE 8 * 1024
+#define ARENA_DEFAULT_SIZE (8u * 1024u)
 
 void *arenaAllocation (Arena *arena, size_t size_in_bytes)
 {
-  // Rounds up the byte count to the nearest multiple of uintptr_t
-  size_t size = (size_in_bytes + sizeof(uintptr_t) - 1) / sizeof(uintptr_t);
+  if (!arena) return NULL;
+  if (size_in_bytes == 0) return NULL;
+
+  size_t words = (size_in_bytes + sizeof(uintptr_t) - 1) / sizeof(uintptr_t);
+  if (words == 0) return NULL;
 
   // The first initialization of arena
-  if (arena->tail_ == NULL)
+  if (!arena->tail_)
   {
     ARENA_ASSERT(arena->head_ == NULL);
-    arena->tail_ = createRegion(size);
+    arena->tail_ = createRegion(words);
 
     arena->head_ = arena->tail_;
-    arena->flags_ = (int *)1;
+    arena->initialized_ = 1;
   }
 
   // Move to the last region
-  while (arena->tail_->count_ + size > arena->tail_->capacity_
-         && arena->tail_->next_ != NULL)
+  while (arena->tail_->count_ + words > arena->tail_->capacity_
+         && arena->tail_->next_)
   {
     arena->tail_ = arena->tail_->next_;
   }
 
   // Append new region to existing arena
-  if (arena->tail_->count_ + size > arena->tail_->capacity_)
+  if (arena->tail_->count_ + words > arena->tail_->capacity_)
   {
     ARENA_ASSERT(arena->tail_->next_ == NULL);
-    arena->tail_->next_ = createRegion(size);
-    arena->tail_ = arena->tail_->next_;
+
+    size_t cap = (words > ARENA_DEFAULT_SIZE) ? words : ARENA_DEFAULT_SIZE;
+    Region *r = createRegion(cap);
+    if (!r) return NULL;
+
+    arena->tail_->next_ = r;
+    arena->tail_ = r;
   }
 
   void *result = &arena->tail_->data_[arena->tail_->count_];
-  arena->tail_->count_ += size;
+  arena->tail_->count_ += words;
 
   return result;
 }
@@ -86,19 +96,19 @@ arenaRealloc (Arena *arena, void *oldptr, size_t old_size, size_t new_size)
 
 void freeArena (Arena *r)
 {
-  Region *curr = r->head_;
+  if (!r) return;
 
+  Region *curr = r->head_;
   while (curr)
   {
-    Region *curr_temp = curr;
-    curr = curr->next_;
-
-    freeRegion(curr_temp);
+    Region *next = curr->next_;
+    free(curr);
+    curr = next;
   }
 
   r->head_ = NULL;
   r->tail_ = NULL;
-  r->flags_ = NULL;
+  r->initialized_ = 0;
 }
 
 void *arenaMemcpy (void *dest, const void *src, size_t n)

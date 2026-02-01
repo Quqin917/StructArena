@@ -8,10 +8,11 @@ extern Arena arena;
 
 void *createNode (intptr_t data)
 {
-  node *new = (node *)arenaAllocation(&arena, sizeof(node));
+  node *n = (node *)arenaAllocation(&arena, sizeof(node));
+  if (!n) return NULL;
 
-  new->data_ = data;
-  new->next_ = NULL;
+  n->data_ = data;
+  n->next_ = NULL;
 
-  return new;
+  return n;
 }

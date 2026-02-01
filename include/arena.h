@@ -18,7 +18,7 @@ typedef struct
 {
   Region *head_;
   Region *tail_;
-  int *flags_;
+  int initialized_;
 } Arena;
 
 void *arenaAllocation(Arena *arena, size_t size);

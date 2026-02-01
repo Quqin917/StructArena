@@ -1,80 +1,47 @@
-# -----------------------------------------------------------------------
-# Build configuration for 'generic linked list' project.
-# This Makefile supports automatic file tracking and recursive structure.
-# -----------------------------------------------------------------------
-
-# Compiler and output binary.
-CC := gcc
-CFLAGS := -Wall -pedantic -g
-TARGET := linked
-
-# Output directory for object and dependency files.
+CC      := gcc
 BLD_DIR := ./build
 
-# -----------------------------------------------------------------------
-# Source directory
-# Collect all C source files under 'source/' and 'apps/'.
-# Avoids hard-coding and keeps project simple.
-# -----------------------------------------------------------------------
+INC_DIRS   := include
+INC_FLAGS  := $(addprefix -I, $(INC_DIRS))
 
-SRC := $(shell find source -type f -name '*.c') \
-			 $(shell find apps -type f -name '*.c')
+FLAGS   := $(INC_FLAGS) -MMD -MP
+CFLAGS  := -Wall -pedantic
+LDFLAGS :=
 
-# Transform 'source/foo.c' into 'build/source/foo.o'.
-OBJ := $(addprefix $(BLD_DIR)/, $(SRC:.c=.o))
+SRC_LIB := $(shell find source -type f -name '*.c')
 
-# Generate dependency file paths from object file.
-# Used for automatic header dependency resolution.
-DEPS := $(OBJ:.o=.d)
+SRC_DEMO  := apps/main.c
+SRC_DEBUG := debug/debug.c
 
-# -----------------------------------------------------------------------
-# Include handling
-# Linked the include directory with -I flags for the compiler.
-# -----------------------------------------------------------------------
+OBJ_LIB = $(addprefix $(BLD_DIR)/, $(SRC_LIB:.c=.o))
+OBJ_DEMO_MAIN  = $(addprefix $(BLD_DIR)/, $(SRC_DEMO:.c=.o))
+OBJ_DEBUG_MAIN = $(addprefix $(BLD_DIR)/, $(SRC_DEBUG:.c=.o))
 
-INC_DIRS := include
-INC_FLAGS := $(addprefix -I, $(INC_DIRS))
+OBJ_DEMO  = $(OBJ_LIB) $(OBJ_DEMO_MAIN)
+OBJ_DEBUG = $(OBJ_LIB) $(OBJ_DEBUG_MAIN)
 
-# Compiler flags common to all builds.
-# -MMD and -MP enable automatic dependency tracking (GCC feature).
-FLAGS := $(INC_FLAGS) -MMD -MP
+DEPS = $(OBJ_LIB:.o=.d) $(OBJ_DEMO_MAIN:.o=.d) $(OBJ_DEBUG_MAIN:.o=.d)
 
-# -----------------------------------------------------------------------
-# Default build target
-# -----------------------------------------------------------------------
+.PHONY: all demo debug clean
+all: demo
 
-all: $(TARGET)
+demo:
+	@$(MAKE) BLD_DIR=./build/demo CFLAGS="$(CFLAGS) -O2" linked_demo
 
-# -----------------------------------------------------------------------
-# Linking step
-# Combine all .o files into a single executable.
-# -----------------------------------------------------------------------
-$(TARGET) : $(OBJ)
-	$(CC) $(OBJ) -o $@ $(LDFLAGS)
+debug:
+	@$(MAKE) BLD_DIR=./build/debug CFLAGS="$(CFLAGS) -g -O0 -DDEBUG" linked_debug
 
-# -----------------------------------------------------------------------
-# Compilation rule
-# Compile C source files into .o files under the build directory.
-# Preserve directory structure for clarity and build hygiene.
-# -----------------------------------------------------------------------
+linked_demo: $(OBJ_DEMO)
+	$(CC) $(OBJ_DEMO) -o $@ $(LDFLAGS)
+
+linked_debug: $(OBJ_DEBUG)
+	$(CC) $(OBJ_DEBUG) -o $@ $(LDFLAGS)
 
 $(BLD_DIR)/%.o : %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(FLAGS) $(CFLAGS) -c $< -o $@
 
-# -----------------------------------------------------------------------
-# Clean target
-# Removes the .o and .d files.
-# -----------------------------------------------------------------------
-
-.PHONY: clean
 clean:
-	rm -rf $(BLD_DIR) $(TARGET) vgcore.*
-
-# -----------------------------------------------------------------------
-# dependency resolution
-# Includes generated .d files to trigger rebuilds if headers change.
-# This keeps rebuilds fast and correct.
-# -----------------------------------------------------------------------
+	rm -rf ./build linked_demo linked_debug vgcore.*
 
 -include $(DEPS)

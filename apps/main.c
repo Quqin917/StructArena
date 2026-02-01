@@ -11,18 +11,32 @@ int main (void)
 {
   linkedList linked = _createLinked(INT);
 
-  appendHeadLinked(&linked, 1);
+  if (!appendHeadLinked(&linked, 1))
+  {
+    fprintf(stderr, "Out of memory\n");
+    freeArena(&arena);
+    return 1;
+  };
 
-  appendTailLinked(&linked, 3);
+  if (!appendTailLinked(&linked, 3))
+  {
+    fprintf(stderr, "Out of memory\n");
+    freeArena(&arena);
+    return 2;
+  };
 
-  insertGivenPos(&linked, 2, 1);
+  if (!insertGivenPos(&linked, 2, 1))
+  {
+    fprintf(stderr, "Out of memory\n");
+    freeArena(&arena);
+    return 3;
+  };
 
   printLinkedList(&linked);
 
-  printf("size of linked list: %d\n", (int)linked.size_);
-  printf("types of data: %d \n", linked.type_);
+  printf("size of linked list: %zu\n", linked.size_);
+  printf("types of data: %d\n", (int)linked.type_);
 
   freeArena(&arena);
-
   return 0;
 }

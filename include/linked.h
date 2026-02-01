@@ -1,14 +1,9 @@
 #ifndef LINKED_H
 #define LINKED_H
 
-// TODO: Make a generic for user to choose different data types
-//      Ways to solve this problem:
-//      1. Macro
-//      2. Union
-//      3. Enums
-
 #include <stddef.h> // For size_t
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "node.h" // For node
 
@@ -22,9 +17,9 @@ typedef enum
 
 typedef struct
 {
-  dataType type_;
   node *head_;
   node *tail_;
+  dataType type_;
   size_t size_;
 } linkedList;
 
@@ -37,9 +32,9 @@ typedef enum
 
 linkedList _createLinked(dataType type);
 
-void appendHeadLinked(linkedList *src, intptr_t data);
-void appendTailLinked(linkedList *src, intptr_t data);
-void insertGivenPos(linkedList *src, intptr_t data, size_t pos);
+bool appendHeadLinked(linkedList *src, intptr_t data);
+bool appendTailLinked(linkedList *src, intptr_t data);
+bool insertGivenPos(linkedList *src, intptr_t data, size_t pos);
 
 void printLinkedList(linkedList *src);
 

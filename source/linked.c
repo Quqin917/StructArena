@@ -8,89 +8,97 @@
 
 linkedList _createLinked (dataType type)
 {
-  linkedList new;
+  linkedList l;
 
-  new.head_ = NULL;
-  new.tail_ = NULL;
-  new.type_ = type;
-  new.size_ = 0;
+  l.head_ = NULL;
+  l.tail_ = NULL;
+  l.type_ = type;
+  l.size_ = 0;
 
-  return new;
+  return l;
 }
 
-void appendHeadLinked (linkedList *src, intptr_t data_)
+bool appendHeadLinked (linkedList *src, intptr_t data_)
 {
-  node *new = (node *)createNode(data_);
+  if (!src) return false;
+
+  node *n = (node *)createNode(data_);
+  if (!n) return false;
 
   if (src->tail_ == NULL)
   {
-    src->tail_ = new;
+    src->tail_ = n;
     src->head_ = src->tail_;
   }
   else
   {
-    new->next_ = src->head_;
-    src->head_ = new;
+    n->next_ = src->head_;
+    src->head_ = n;
   }
+
   src->size_ += 1;
+  return true;
 }
 
-void appendTailLinked (linkedList *src, intptr_t data_)
+bool appendTailLinked (linkedList *src, intptr_t data_)
 {
-  node *new = (node *)createNode(data_);
+  if (!src) return false;
+
+  node *n = (node *)createNode(data_);
+  if (!n) return false;
 
   if (src->tail_ == NULL)
   {
-    src->tail_ = new;
+    src->tail_ = n;
     src->head_ = src->tail_;
   }
   else
   {
-    src->tail_->next_ = new;
-    src->tail_ = new;
+    src->tail_->next_ = n;
+    src->tail_ = n;
   }
+
   src->size_ += 1;
+  return true;
 }
 
 void printLinkedList (linkedList *src)
 {
-  node *cur = src->head_;
-  while (cur != NULL)
+  if (!src) return;
+
+  for (node *cur = src->head_; cur; cur = cur->next_)
   {
-    printf("%d\n", (int)cur->data_);
-    cur = cur->next_;
+    printf("%ld\n", (long)cur->data_);
   }
 }
 
 #include <assert.h>
 
-void insertGivenPos (linkedList *src, intptr_t data_, size_t pos)
+bool insertGivenPos (linkedList *src, intptr_t data_, size_t pos)
 {
-  if (pos > src->size_) { return; }
+  if (!src) return false;
+  if (pos > src->size_) return false;
 
   if (pos == 0)
-  {
-    appendHeadLinked(src, data_);
-    return;
-  }
+    return appendHeadLinked(src, data_);
   else if (pos == src->size_)
-  {
-    appendTailLinked(src, data_);
-    return;
-  }
+    return appendTailLinked(src, data_);
 
-  node *new = (node *)createNode(data_);
-  node *prev = {0};
+  node *n = (node *)createNode(data_);
+  if (!n) return false;
 
+  node *prev = NULL;
   node *curr = src->head_;
+
   for (int i = 0; i < pos; ++i)
   {
     prev = curr;
     curr = curr->next_;
   }
 
-  new->next_ = curr;
-  prev->next_ = new;
-
+  n->next_ = curr;
+  prev->next_ = n;
   src->size_ += 1;
+
+  return true;
 }
