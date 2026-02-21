@@ -90,7 +90,7 @@ bool insertGivenPos (linkedList *src, intptr_t data_, size_t pos)
   node *prev = NULL;
   node *curr = src->head_;
 
-  for (int i = 0; i < pos; ++i)
+  for (size_t i = 0; i < pos; ++i)
   {
     prev = curr;
     curr = curr->next_;

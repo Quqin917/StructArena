@@ -32,7 +32,7 @@ Region *createRegion (size_t capacity)
   return region;
 }
 
-#define ARENA_DEFAULT_SIZE (8u * 1024u)
+#define ARENA_DEFAULT_SIZE (1024u * 1024u * 2u) // 2MB
 
 void *arenaAllocation (Arena *arena, size_t size_in_bytes)
 {
@@ -50,6 +50,8 @@ void *arenaAllocation (Arena *arena, size_t size_in_bytes)
 
     arena->head_ = arena->tail_;
     arena->initialized_ = 1;
+    arena->block_count++;
+    arena->total_allocated_to_system += (words * sizeof(uintptr_t));
   }
 
   // Move to the last region
@@ -70,6 +72,9 @@ void *arenaAllocation (Arena *arena, size_t size_in_bytes)
 
     arena->tail_->next_ = r;
     arena->tail_ = r;
+
+    arena->block_count++;
+    arena->total_allocated_to_system += (cap * sizeof(uintptr_t));
   }
 
   void *result = &arena->tail_->data_[arena->tail_->count_];
@@ -109,6 +114,20 @@ void freeArena (Arena *r)
   r->head_ = NULL;
   r->tail_ = NULL;
   r->initialized_ = 0;
+}
+
+void arenaReset (Arena *a)
+{
+  if (!a || !a->head_) return;
+
+  a->tail_ = a->head_;
+
+  Region *curr = a->head_;
+  while (curr)
+  {
+    curr->count_ = 0;
+    curr = curr->next_;
+  }
 }
 
 void *arenaMemcpy (void *dest, const void *src, size_t n)

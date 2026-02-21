@@ -1,47 +1,54 @@
+# --- Configuration ---
 CC      := gcc
-BLD_DIR := ./build
+TARGET  := arena_benchmark
+SRC_DIR := source debug
+INC_DIR := include
+OBJ_DIR := build
 
-INC_DIRS   := include
-INC_FLAGS  := $(addprefix -I, $(INC_DIRS))
+# Find all .c files in the source directories
+SRCS    := $(foreach dir, $(SRC_DIR), $(wildcard $(dir)/*.c))
+# Map .c files to .o files in the build directory
+OBJS    := $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
+# Map .o files to .d (dependency) files
+DEPS    := $(OBJS:.o=.d)
 
-FLAGS   := $(INC_FLAGS) -MMD -MP
-CFLAGS  := -Wall -pedantic
-LDFLAGS :=
+# --- Build Modes ---
+# Default to release mode if not specified (e.g., run `make` or `make MODE=debug`)
+MODE ?= release
 
-SRC_LIB := $(shell find source -type f -name '*.c')
+# Base flags
+CFLAGS := -I$(INC_DIR) -Wall -Wextra -pedantic -std=c11 -MMD -MP
 
-SRC_DEMO  := apps/main.c
-SRC_DEBUG := debug/debug.c
+ifeq ($(MODE), debug)
+    CFLAGS += -g -O0 -DDEBUG
+    $(info Build Mode: DEBUG)
+else
+    # Release mode: Maximize speed, enable link-time optimization
+    CFLAGS += -O2 -march=native -flto -DNDEBUG
+    $(info Build Mode: RELEASE)
+endif
 
-OBJ_LIB = $(addprefix $(BLD_DIR)/, $(SRC_LIB:.c=.o))
-OBJ_DEMO_MAIN  = $(addprefix $(BLD_DIR)/, $(SRC_DEMO:.c=.o))
-OBJ_DEBUG_MAIN = $(addprefix $(BLD_DIR)/, $(SRC_DEBUG:.c=.o))
+# --- Targets ---
+.PHONY: all clean run
 
-OBJ_DEMO  = $(OBJ_LIB) $(OBJ_DEMO_MAIN)
-OBJ_DEBUG = $(OBJ_LIB) $(OBJ_DEBUG_MAIN)
+all: $(TARGET)
 
-DEPS = $(OBJ_LIB:.o=.d) $(OBJ_DEMO_MAIN:.o=.d) $(OBJ_DEBUG_MAIN:.o=.d)
+$(TARGET): $(OBJS)
+	@echo "Linking $@"
+	@$(CC) $(CFLAGS) $^ -o $@
 
-.PHONY: all demo debug clean
-all: demo
-
-demo:
-	@$(MAKE) BLD_DIR=./build/demo CFLAGS="$(CFLAGS) -O2" linked_demo
-
-debug:
-	@$(MAKE) BLD_DIR=./build/debug CFLAGS="$(CFLAGS) -g -O0 -DDEBUG" linked_debug
-
-linked_demo: $(OBJ_DEMO)
-	$(CC) $(OBJ_DEMO) -o $@ $(LDFLAGS)
-
-linked_debug: $(OBJ_DEBUG)
-	$(CC) $(OBJ_DEBUG) -o $@ $(LDFLAGS)
-
-$(BLD_DIR)/%.o : %.c
+# Compile rule for any .c file
+$(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(FLAGS) $(CFLAGS) -c $< -o $@
+	@echo "Compiling $<"
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+run: all
+	./$(TARGET)
 
 clean:
-	rm -rf ./build linked_demo linked_debug vgcore.*
+	@echo "Cleaning build files..."
+	@rm -rf $(OBJ_DIR) $(TARGET) vgcore.*
 
+# Include generated dependencies
 -include $(DEPS)
