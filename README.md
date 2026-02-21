@@ -18,7 +18,7 @@ Instead of asking OS for memory on every allocation, the Arena requests large, c
 When a region reaches capacity, the Arena dynamically allocates a new region and links it to the previous one.
 * **Benefit:** Unlinked `realloc`-based dynamic arrays, this approach guarantess that **existing pointer are never invalidated** when the Arena grows.
 
-## 3. Hardware Word-Alignment
+### 3. Hardware Word-Alignment
 
 Every allocation is mathematically aligned to the CPU's native word size (`uintptr_t`, typically 8 bytes on 64-bit systems).
 * **Benefit:** Prevents misaligned access penalties and bus errors, making the code portable and safe for strict-alignment architectures.
