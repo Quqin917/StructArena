@@ -12,7 +12,6 @@
 typedef struct region Region;
 
 Region *createRegion(size_t capacity);
-void freeRegion(Region *a);
 
 typedef struct
 {

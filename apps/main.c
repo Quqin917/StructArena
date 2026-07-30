@@ -9,7 +9,7 @@ Arena arena = {0};
 
 int main (void)
 {
-  linkedList linked = _createLinked(INT);
+  linkedList linked = createLinked(INT);
 
   if (!appendHeadLinked(&linked, 1))
   {

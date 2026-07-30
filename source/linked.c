@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-linkedList _createLinked (dataType type)
+linkedList createLinked (dataType type)
 {
   linkedList l;
 

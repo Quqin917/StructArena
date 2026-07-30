@@ -23,14 +23,7 @@ typedef struct
   size_t size_;
 } linkedList;
 
-typedef enum
-{
-  SUCCESS = 0,
-  ERROR_TYPE_MISMATCH = 1,
-  ERROR_MEMORY_ALLOCATION_FAILED = 2,
-} ErrorCode;
-
-linkedList _createLinked(dataType type);
+linkedList createLinked(dataType type);
 
 bool appendHeadLinked(linkedList *src, intptr_t data);
 bool appendTailLinked(linkedList *src, intptr_t data);
