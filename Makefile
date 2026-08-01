@@ -1,4 +1,3 @@
-# --- Configuration ---
 CC      := gcc
 TARGET  := arena_benchmark
 INC_DIR := include
@@ -6,7 +5,6 @@ OBJ_DIR := build
 
 SRC_DIR := source
 
-# --- Build Modes ---
 # Default to release mode if not specified (e.g., run `make` or `make MODE=debug`)
 MODE ?= release
 CFLAGS := -I$(INC_DIR) -Wall -Wextra -pedantic -std=c11 -MMD -MP
