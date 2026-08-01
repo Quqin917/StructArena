@@ -3,10 +3,11 @@
 #include "arena.h"
 #include <stdint.h>
 
-#define MEGABYTE_SIZE (1024u * 1024u)
 #define ARENA_DEFAULT_SIZE (MEGABYTE_SIZE * 2u) // 2 MB
 
 #include <stdlib.h> // For malloc() and free()
+
+static Region *createRegion(size_t capacity);
 
 struct region
 {
@@ -15,25 +16,6 @@ struct region
   size_t count_;
   intptr_t data_[];
 };
-
-Region *createRegion (size_t capacity)
-{
-  if (capacity == 0) return NULL;
-
-  // Overflow guard
-  if (capacity > (SIZE_MAX - sizeof(Region)) / sizeof(uintptr_t)) return NULL;
-
-  size_t bytes = sizeof(Region) + sizeof(uintptr_t) * capacity;
-
-  Region *region = (Region *)malloc(bytes);
-  if (!region) return NULL;
-
-  region->next_ = NULL;
-  region->capacity_ = capacity;
-  region->count_ = 0;
-
-  return region;
-}
 
 void *arenaAllocation (Arena *arena, size_t size_in_bytes)
 {
@@ -81,6 +63,25 @@ void *arenaAllocation (Arena *arena, size_t size_in_bytes)
   arena->tail_->count_ += words;
 
   return result;
+}
+
+Region *createRegion (size_t capacity)
+{
+  if (capacity == 0) return NULL;
+
+  // Overflow guard
+  if (capacity > (SIZE_MAX - sizeof(Region)) / sizeof(uintptr_t)) return NULL;
+
+  size_t bytes = sizeof(Region) + sizeof(uintptr_t) * capacity;
+
+  Region *region = (Region *)malloc(bytes);
+  if (!region) return NULL;
+
+  region->next_ = NULL;
+  region->capacity_ = capacity;
+  region->count_ = 0;
+
+  return region;
 }
 
 void *

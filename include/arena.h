@@ -9,6 +9,8 @@
 #define ARENA_ASSERT assert
 #endif // !ARENA_ASSERT
 
+#define MEGABYTE_SIZE (1024u * 1024u)
+
 typedef struct region Region;
 
 typedef struct
