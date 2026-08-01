@@ -3,6 +3,11 @@
 #include "arena.h"
 #include <stdint.h>
 
+#define MEGABYTE_SIZE (1024u * 1024u)
+#define ARENA_DEFAULT_SIZE (MEGABYTE_SIZE * 2u) // 2 MB
+
+#include <stdlib.h> // For malloc() and free()
+
 struct region
 {
   struct region *next_;
@@ -10,8 +15,6 @@ struct region
   size_t count_;
   intptr_t data_[];
 };
-
-#include <stdlib.h> // For malloc() and free()
 
 Region *createRegion (size_t capacity)
 {
@@ -32,8 +35,6 @@ Region *createRegion (size_t capacity)
   return region;
 }
 
-#define ARENA_DEFAULT_SIZE (1024u * 1024u * 2u) // 2MB
-
 void *arenaAllocation (Arena *arena, size_t size_in_bytes)
 {
   if (!arena) return NULL;
@@ -49,7 +50,6 @@ void *arenaAllocation (Arena *arena, size_t size_in_bytes)
     arena->tail_ = createRegion(words);
 
     arena->head_ = arena->tail_;
-    arena->initialized_ = 1;
     arena->block_count++;
     arena->total_allocated_to_system += (words * sizeof(uintptr_t));
   }
@@ -99,7 +99,7 @@ arenaRealloc (Arena *arena, void *oldptr, size_t old_size, size_t new_size)
   return new_ptr;
 }
 
-void freeArena (Arena *r)
+void arenaFree (Arena *r)
 {
   if (!r) return;
 
@@ -113,7 +113,6 @@ void freeArena (Arena *r)
 
   r->head_ = NULL;
   r->tail_ = NULL;
-  r->initialized_ = 0;
 }
 
 void arenaReset (Arena *a)
@@ -144,9 +143,7 @@ void *arenaMemcpy (void *dest, const void *src, size_t n)
 }
 
 void *regionAt (void *data, size_t byte_offset)
-{
-  return (void *)((char *)data + byte_offset);
-}
+{ return (void *)((char *)data + byte_offset); }
 
 void *arenaAt (Arena *arena, size_t offset, size_t item_size)
 {
@@ -169,4 +166,11 @@ void *arenaAt (Arena *arena, size_t offset, size_t item_size)
   }
 
   return NULL;
+}
+
+size_t arenaRemainingSpace (Arena *arena)
+{
+  if (!arena || !arena->tail_) { return 0; }
+
+  return arena->tail_->capacity_ - arena->tail_->count_;
 }

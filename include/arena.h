@@ -11,13 +11,10 @@
 
 typedef struct region Region;
 
-Region *createRegion(size_t capacity);
-
 typedef struct
 {
   Region *head_;
   Region *tail_;
-  int initialized_;
   int block_count;
   size_t total_allocated_to_system;
 } Arena;
@@ -30,7 +27,9 @@ arenaRealloc(Arena *arena, void *oldptr, size_t old_size, size_t new_size);
 
 void *arenaAt(Arena *arena, size_t iterator, size_t item_size);
 
-void freeArena(Arena *arena);
+size_t arenaRemainingSpace(Arena *arena);
+
+void arenaFree(Arena *arena);
 void arenaReset(Arena *arena);
 
 #endif // !ARENA_H

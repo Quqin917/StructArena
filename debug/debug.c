@@ -46,7 +46,7 @@ int main (void)
   printf("  Blocks created: %d\n", arena.block_count);
   printf("  Total OS memory: %zu bytes\n", arena.total_allocated_to_system);
 
-  freeArena(&arena);
+  arenaFree(&arena);
 }
 
 static inline double now_sec (void)

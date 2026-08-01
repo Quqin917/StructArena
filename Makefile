@@ -1,34 +1,30 @@
 # --- Configuration ---
 CC      := gcc
 TARGET  := arena_benchmark
-SRC_DIR := source debug
 INC_DIR := include
 OBJ_DIR := build
 
-# Find all .c files in the source directories
-SRCS    := $(foreach dir, $(SRC_DIR), $(wildcard $(dir)/*.c))
-# Map .c files to .o files in the build directory
-OBJS    := $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
-# Map .o files to .d (dependency) files
-DEPS    := $(OBJS:.o=.d)
+SRC_DIR := source
 
 # --- Build Modes ---
 # Default to release mode if not specified (e.g., run `make` or `make MODE=debug`)
 MODE ?= release
-
-# Base flags
 CFLAGS := -I$(INC_DIR) -Wall -Wextra -pedantic -std=c11 -MMD -MP
 
 ifeq ($(MODE), debug)
     CFLAGS += -g -O0 -DDEBUG
+		SRC_DIR += debug
     $(info Build Mode: DEBUG)
 else
-    # Release mode: Maximize speed, enable link-time optimization
     CFLAGS += -O2 -march=native -flto -DNDEBUG
+		SRC_DIR += apps
     $(info Build Mode: RELEASE)
 endif
 
-# --- Targets ---
+SRCS    := $(foreach dir, $(SRC_DIR), $(wildcard $(dir)/*.c))
+OBJS    := $(patsubst %.c, $(OBJ_DIR)/%.o, $(SRCS))
+DEPS    := $(OBJS:.o=.d)
+
 .PHONY: all clean run
 
 all: $(TARGET)
@@ -50,5 +46,4 @@ clean:
 	@echo "Cleaning build files..."
 	@rm -rf $(OBJ_DIR) $(TARGET) vgcore.*
 
-# Include generated dependencies
 -include $(DEPS)

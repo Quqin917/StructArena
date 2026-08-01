@@ -14,21 +14,21 @@ int main (void)
   if (!appendHeadLinked(&linked, 1))
   {
     fprintf(stderr, "Out of memory\n");
-    freeArena(&arena);
+    arenaFree(&arena);
     return 1;
   };
 
   if (!appendTailLinked(&linked, 3))
   {
     fprintf(stderr, "Out of memory\n");
-    freeArena(&arena);
+    arenaFree(&arena);
     return 2;
   };
 
   if (!insertGivenPos(&linked, 2, 1))
   {
     fprintf(stderr, "Out of memory\n");
-    freeArena(&arena);
+    arenaFree(&arena);
     return 3;
   };
 
@@ -37,6 +37,8 @@ int main (void)
   printf("size of linked list: %zu\n", linked.size_);
   printf("types of data: %d\n", (int)linked.type_);
 
-  freeArena(&arena);
+  printf("Arena Remaining Space: %zu\n", arenaRemainingSpace(&arena));
+
+  arenaFree(&arena);
   return 0;
 }
