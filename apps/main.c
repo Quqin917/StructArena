@@ -37,6 +37,8 @@ int main (void)
   printf("size of linked list: %zu\n", linked.size_);
   printf("types of data: %d\n", (int)linked.type_);
 
+  printf("Arena Total Allocated to System: %zu\n",
+         arena.total_allocated_to_system);
   printf("Arena Remaining Space: %zu\n", arenaRemainingSpace(&arena));
 
   arenaFree(&arena);

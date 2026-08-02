@@ -25,15 +25,19 @@ void *arenaAllocation (Arena *arena, size_t size_in_bytes)
   size_t words = (size_in_bytes + sizeof(uintptr_t) - 1) / sizeof(uintptr_t);
   if (words == 0) return NULL;
 
+  size_t defaultWords = ARENA_DEFAULT_SIZE / sizeof(uintptr_t);
+  size_t cap = (words > defaultWords) ? words : defaultWords;
+
   // The first initialization of arena
   if (!arena->tail_)
   {
     ARENA_ASSERT(arena->head_ == NULL);
-    arena->tail_ = createRegion(words);
+
+    arena->tail_ = createRegion(cap);
 
     arena->head_ = arena->tail_;
     arena->block_count++;
-    arena->total_allocated_to_system += (words * sizeof(uintptr_t));
+    arena->total_allocated_to_system += (cap * sizeof(uintptr_t));
   }
 
   // Move to the last region
@@ -48,7 +52,6 @@ void *arenaAllocation (Arena *arena, size_t size_in_bytes)
   {
     ARENA_ASSERT(arena->tail_->next_ == NULL);
 
-    size_t cap = (words > ARENA_DEFAULT_SIZE) ? words : ARENA_DEFAULT_SIZE;
     Region *r = createRegion(cap);
     if (!r) return NULL;
 
@@ -173,5 +176,5 @@ size_t arenaRemainingSpace (Arena *arena)
 {
   if (!arena || !arena->tail_) { return 0; }
 
-  return arena->tail_->capacity_ - arena->tail_->count_;
+  return (arena->tail_->capacity_ - arena->tail_->count_) * sizeof(uintptr_t);
 }
