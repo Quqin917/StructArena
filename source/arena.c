@@ -142,27 +142,26 @@ void *arenaMemcpy (void *dest, const void *src, size_t n)
   return dest;
 }
 
-void *regionAt (void *data, size_t byte_offset)
-{ return (void *)((char *)data + byte_offset); }
-
-void *arenaAt (Arena *arena, size_t offset, size_t item_size)
+void *arenaAt (Arena *arena, size_t iterator, size_t itemSize)
 {
-  Region *current = arena->head_;
+  if (!arena || !arena->tail_) { return NULL; }
 
-  while (current != NULL)
+  Region *curr = arena->head_;
+  size_t iteratorRegion = iterator * itemSize;
+
+  while (curr != NULL)
   {
-    size_t bytes_in_region = current->count_ * sizeof(uintptr_t);
-    size_t iterator_region = offset * item_size;
+    // Calculate total bytes in this region
+    size_t bytesRegion = curr->count_ * sizeof(uintptr_t);
 
-    if (iterator_region < bytes_in_region)
+    // If target bytes
+    if (iteratorRegion < bytesRegion)
     {
-      return regionAt(current->data_, iterator_region);
+      return (char *)curr->data_ + iteratorRegion;
     }
 
-    size_t item_in_region = bytes_in_region / item_size;
-    offset -= item_in_region;
-
-    current = current->next_;
+    iteratorRegion -= bytesRegion;
+    curr = curr->next_;
   }
 
   return NULL;
@@ -170,7 +169,7 @@ void *arenaAt (Arena *arena, size_t offset, size_t item_size)
 
 size_t arenaRemainingSpace (Arena *arena)
 {
-  if (!arena || !arena->tail_) { return 0; }
+  if (!arena || !arena->tail_) { return NULL; }
 
   return (arena->tail_->capacity_ - arena->tail_->count_) * sizeof(uintptr_t);
 }
