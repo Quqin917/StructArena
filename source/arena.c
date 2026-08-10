@@ -130,12 +130,14 @@ void arenaReset (Arena *a)
 void *arenaMemcpy (void *dest, const void *src, size_t n)
 {
   // Assigned data types to void
-  char *d = dest;
-  const char *s = src;
+  char *d = (char *)dest;
+  const char *s = (const char *)src;
 
   // Copy every byte of src to dest
   for (; n; n--)
-    *d++ = *s++;
+  {
+    d[n] = s[n];
+  }
 
   return dest;
 }
