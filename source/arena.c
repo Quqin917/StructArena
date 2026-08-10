@@ -87,20 +87,14 @@ Region *createRegion (size_t capacity)
   return region;
 }
 
-void *
-arenaRealloc (Arena *arena, void *oldptr, size_t old_size, size_t new_size)
+void *arenaRealloc (Arena *arena, void *oldPtr, size_t oldSize, size_t newSize)
 {
-  if (new_size <= old_size) return oldptr;
+  if (newSize <= oldSize) return oldPtr;
 
-  void *new_ptr = arenaAllocation(arena, new_size);
+  void *newPtr = arenaAllocation(arena, newSize);
+  if (oldPtr && newPtr) { arenaMemcpy(newPtr, oldPtr, oldSize); }
 
-  char *old_ptr_byte = (char *)oldptr;
-  char *new_ptr_byte = (char *)new_ptr;
-
-  for (size_t i = 0; i < old_size; ++i)
-    new_ptr_byte[i] = old_ptr_byte[i];
-
-  return new_ptr;
+  return newPtr;
 }
 
 void arenaFree (Arena *r)
