@@ -7,27 +7,18 @@
 
 #include "node.h" // For node
 
-typedef enum
-{
-  INT,
-  CHAR,
-  STRING,
-  DOUBLE,
-} dataType;
-
 typedef struct
 {
   node *head_;
   node *tail_;
-  dataType type_;
   size_t size_;
 } linkedList;
 
-linkedList createLinked(dataType type);
+linkedList createLinked(void);
 
-bool appendHeadLinked(linkedList *src, intptr_t data);
-bool appendTailLinked(linkedList *src, intptr_t data);
-bool insertGivenPos(linkedList *src, intptr_t data, size_t pos);
+bool appendHeadLinked(linkedList *src, int data);
+bool appendTailLinked(linkedList *src, int data);
+bool insertGivenPos(linkedList *src, int data, size_t pos);
 
 void printLinkedList(linkedList *src);
 

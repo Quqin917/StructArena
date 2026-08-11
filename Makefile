@@ -14,7 +14,7 @@ ifeq ($(MODE), debug)
 		SRC_DIR += debug
     $(info Build Mode: DEBUG)
 else
-    CFLAGS += -O2 -march=native -flto -DNDEBUG
+    CFLAGS += -O2 -march=native -flto -DNDEBUG -pg
 		SRC_DIR += apps
     $(info Build Mode: RELEASE)
 endif

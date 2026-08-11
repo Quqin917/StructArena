@@ -5,42 +5,31 @@
 #include "arena.h"
 #include "linked.h"
 
-Arena arena = {0};
+Arena my_arena = {0};
 
 int main (void)
 {
-  linkedList linked = createLinked(INT);
+  printf("Arena Size Before: %ld\n", arenaRemainingSpace(&my_arena));
 
-  if (!appendHeadLinked(&linked, 1))
+  linkedList list = createLinked();
+
+  for (size_t i = 0; i < 5000000; i++)
   {
-    fprintf(stderr, "Out of memory\n");
-    arenaFree(&arena);
-    return 1;
-  };
+    appendTailLinked(&list, i);
+  }
 
-  if (!appendTailLinked(&linked, 3))
+  long long total_sum = 0;
+  node *curr = list.head_;
+
+  while (curr != NULL)
   {
-    fprintf(stderr, "Out of memory\n");
-    arenaFree(&arena);
-    return 2;
-  };
+    total_sum += curr->data_;
+    curr = curr->next_;
+  }
 
-  if (!insertGivenPos(&linked, 2, 1))
-  {
-    fprintf(stderr, "Out of memory\n");
-    arenaFree(&arena);
-    return 3;
-  };
+  printf("Arena Size After: %ld\n", arenaRemainingSpace(&my_arena));
+  printf("Benchmark complete. Total sum: %lld\n", total_sum);
 
-  printLinkedList(&linked);
-
-  printf("size of linked list: %zu\n", linked.size_);
-  printf("types of data: %d\n", (int)linked.type_);
-
-  printf("Arena Total Allocated to System: %zu\n",
-         arena.total_allocated_to_system);
-  printf("Arena Remaining Space: %zu\n", arenaRemainingSpace(&arena));
-
-  arenaFree(&arena);
+  arenaFree(&my_arena);
   return 0;
 }

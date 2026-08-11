@@ -9,9 +9,9 @@ typedef struct node node;
 struct node
 {
   struct node *next_;
-  intptr_t data_;
+  int data_;
 };
 
-void *createNode(intptr_t data);
+void *createNode(int data);
 
 #endif // !NODE_H

@@ -5,7 +5,7 @@
 
 #define ARENA_DEFAULT_SIZE (MEGABYTE_SIZE * 2u) // 2 MB
 
-#include <stdlib.h> // For malloc() and free()
+#include <sys/mman.h>
 
 static Region *createRegion(size_t capacity);
 
@@ -77,7 +77,9 @@ Region *createRegion (size_t capacity)
 
   size_t bytes = sizeof(Region) + sizeof(uintptr_t) * capacity;
 
-  Region *region = (Region *)malloc(bytes);
+  Region *region
+    = (Region *)mmap(NULL, bytes, PROT_READ | PROT_WRITE,
+                     MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE, -1, 0);
   if (!region) return NULL;
 
   region->next_ = NULL;
@@ -105,7 +107,7 @@ void arenaFree (Arena *r)
   while (curr)
   {
     Region *next = curr->next_;
-    free(curr);
+    munmap(&curr, sizeof(Region));
     curr = next;
   }
 
@@ -169,7 +171,7 @@ void *arenaAt (Arena *arena, size_t iterator, size_t itemSize)
 
 size_t arenaRemainingSpace (Arena *arena)
 {
-  if (!arena || !arena->tail_) { return NULL; }
+  if (!arena || !arena->tail_) { return 0; }
 
   return (arena->tail_->capacity_ - arena->tail_->count_) * sizeof(uintptr_t);
 }

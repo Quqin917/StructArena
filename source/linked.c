@@ -6,19 +6,18 @@
 #include <stdint.h>
 #include <stdio.h>
 
-linkedList createLinked (dataType type)
+linkedList createLinked (void)
 {
   linkedList l;
 
   l.head_ = NULL;
   l.tail_ = NULL;
-  l.type_ = type;
   l.size_ = 0;
 
   return l;
 }
 
-bool appendHeadLinked (linkedList *src, intptr_t data_)
+bool appendHeadLinked (linkedList *src, int data_)
 {
   if (!src) return false;
 
@@ -40,7 +39,7 @@ bool appendHeadLinked (linkedList *src, intptr_t data_)
   return true;
 }
 
-bool appendTailLinked (linkedList *src, intptr_t data_)
+bool appendTailLinked (linkedList *src, int data_)
 {
   if (!src) return false;
 
@@ -66,15 +65,17 @@ void printLinkedList (linkedList *src)
 {
   if (!src) return;
 
-  for (node *cur = src->head_; cur; cur = cur->next_)
+  node *cur = src->head_;
+  while (cur)
   {
-    printf("%ld\n", (long)cur->data_);
+    printf("%d\n", cur->data_);
+    cur = cur->next_;
   }
 }
 
 #include <assert.h>
 
-bool insertGivenPos (linkedList *src, intptr_t data_, size_t pos)
+bool insertGivenPos (linkedList *src, int data_, size_t pos)
 {
   if (!src) return false;
   if (pos > src->size_) return false;

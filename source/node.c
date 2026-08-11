@@ -4,11 +4,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-extern Arena arena;
+extern Arena my_arena;
 
-void *createNode (intptr_t data)
+void *createNode (int data)
 {
-  node *n = (node *)arenaAllocation(&arena, sizeof(node));
+  node *n = (node *)arenaAllocation(&my_arena, sizeof(node));
   if (!n) return NULL;
 
   n->data_ = data;
