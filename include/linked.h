@@ -1,11 +1,12 @@
 #ifndef LINKED_H
 #define LINKED_H
 
-#include <stddef.h> // For size_t
+#include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "node.h" // For node
+#include "node.h"
+#include "arena.h"
 
 typedef struct
 {
@@ -16,9 +17,9 @@ typedef struct
 
 linkedList createLinked(void);
 
-bool appendHeadLinked(linkedList *src, int data);
-bool appendTailLinked(linkedList *src, int data);
-bool insertGivenPos(linkedList *src, int data, size_t pos);
+void appendHeadLinked(Arena *arena, linkedList *src, int data);
+void appendTailLinked(Arena *arena, linkedList *src, int data);
+void insertGivenPos(Arena *arena, linkedList *src, int data, size_t pos);
 
 void printLinkedList(linkedList *src);
 
