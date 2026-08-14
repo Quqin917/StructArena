@@ -1,38 +1,50 @@
 #include "linked.h"
 #include "node.h"
 
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <stdio.h>
 
 linkedList createLinked (void)
 {
-  linkedList l = {
-    .head_ = NULL,
-    .tail_ = NULL,
-    .size_ = 0,
-  };
+  linkedList l;
+
+  l.head_ = NULL;
+  l.tail_ = NULL;
+  l.size_ = 0;
 
   return l;
 }
 
-void appendHeadLinked (Arena *arena, linkedList *src, int data_)
+bool appendHeadLinked (linkedList *src, int data_)
 {
-  if (!src) return;
+  if (!src) return false;
 
-  node *n = (node *)createNode(arena, data_);
-  if (!n) return;
+  node *n = (node *)createNode(data_);
+  if (!n) return false;
 
-  n->next_ = src->head_;
-  src->head_ = n;
+  if (src->tail_ == NULL)
+  {
+    src->tail_ = n;
+    src->head_ = src->tail_;
+  }
+  else
+  {
+    n->next_ = src->head_;
+    src->head_ = n;
+  }
 
   src->size_ += 1;
+  return true;
 }
 
-void appendTailLinked (Arena *arena, linkedList *src, int data_)
+bool appendTailLinked (linkedList *src, int data_)
 {
-  if (!src) return;
+  if (!src) return false;
 
-  node *n = (node *)createNode(arena, data_);
-  if (!n) return;
+  node *n = (node *)createNode(data_);
+  if (!n) return false;
 
   if (src->tail_ == NULL)
   {
@@ -46,6 +58,7 @@ void appendTailLinked (Arena *arena, linkedList *src, int data_)
   }
 
   src->size_ += 1;
+  return true;
 }
 
 void printLinkedList (linkedList *src)
@@ -62,23 +75,18 @@ void printLinkedList (linkedList *src)
 
 #include <assert.h>
 
-void insertGivenPos (Arena *arena, linkedList *src, int data_, size_t pos)
+bool insertGivenPos (linkedList *src, int data_, size_t pos)
 {
-  if (!src || pos > src->size_) return;
+  if (!src) return false;
+  if (pos > src->size_) return false;
 
   if (pos == 0)
-  {
-    appendHeadLinked(arena, src, data_);
-    return;
-  }
+    return appendHeadLinked(src, data_);
   else if (pos == src->size_)
-  {
-    appendTailLinked(arena, src, data_);
-    return;
-  }
+    return appendTailLinked(src, data_);
 
-  node *n = (node *)createNode(arena, data_);
-  if (!n) return;
+  node *n = (node *)createNode(data_);
+  if (!n) return false;
 
   node *prev = NULL;
   node *curr = src->head_;
@@ -92,4 +100,6 @@ void insertGivenPos (Arena *arena, linkedList *src, int data_, size_t pos)
   n->next_ = curr;
   prev->next_ = n;
   src->size_ += 1;
+
+  return true;
 }

@@ -2,7 +2,6 @@
 
 #include "arena.h"
 #include <stdint.h>
-#include <stdio.h>
 
 #define ARENA_DEFAULT_SIZE (MEGABYTE_SIZE * 2u) // 2 MB
 
@@ -108,14 +107,7 @@ void arenaFree (Arena *r)
   while (curr)
   {
     Region *next = curr->next_;
-
-    // size_t bytes = sizeof(Region) + sizeof(intptr_t) * curr->capacity_;
-    int result = munmap(curr, sizeof(Region));
-    if (result == -1)
-    {
-      fprintf(stderr, "munmap FAILED! Memory is secretly leaking!\n");
-    }
-
+    munmap(&curr, sizeof(Region));
     curr = next;
   }
 
