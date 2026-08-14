@@ -58,4 +58,3 @@ build/
 compile_commands.json
 arena_benchmark
 perf.data
-massif.out*
