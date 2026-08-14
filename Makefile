@@ -6,16 +6,16 @@ endif
 
 ALLOCATOR ?= malloc
 
-#ifeq ($(DETECTED_OS), Linux)
-#    ALLOCATOR := mmap
-#    $(info System detected: Linux. Auto-selecting MMAP allocator.)
-#else ifeq ($(DETECTED_OS), Darwin)
-#    ALLOCATOR := mmap
-#    $(info System detected: macOS. Auto-selecting MMAP allocator.)
-#else
-#    ALLOCATOR := malloc
-#    $(info System detected: $(DETECTED_OS). Auto-selecting malloc allocator.)
-#endif
+ifeq ($(DETECTED_OS), Linux)
+    ALLOCATOR := mmap
+    $(info System detected: Linux. Auto-selecting MMAP allocator.)
+else ifeq ($(DETECTED_OS), Darwin)
+    ALLOCATOR := mmap
+    $(info System detected: macOS. Auto-selecting MMAP allocator.)
+else
+    ALLOCATOR := malloc
+    $(info System detected: $(DETECTED_OS). Auto-selecting malloc allocator.)
+endif
 
 CC      := gcc
 TARGET  := arena_benchmark
