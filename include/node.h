@@ -4,6 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "arena.h"
+
 typedef struct node node;
 
 struct node
@@ -12,6 +14,6 @@ struct node
   int data_;
 };
 
-void *createNode(int data);
+void *createNode(Arena *arena, int data);
 
 #endif // !NODE_H
