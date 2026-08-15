@@ -60,8 +60,6 @@ void printLinkedList (linkedList *src)
   }
 }
 
-#include <assert.h>
-
 void insertGivenPos (Arena *arena, linkedList *src, int data_, size_t pos)
 {
   if (!src || pos > src->size_) return;

@@ -1,7 +1,6 @@
 #include "node.h"
 
 #include <stddef.h>
-#include <stdint.h>
 
 void *createNode (Arena *arena, int data)
 {

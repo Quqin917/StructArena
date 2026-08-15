@@ -4,6 +4,7 @@
 
 #include "arena.h"
 #include "linked.h"
+#include "node.h"
 
 int main (void)
 {
