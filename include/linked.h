@@ -2,8 +2,6 @@
 #define LINKED_H
 
 #include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
 
 #include "node.h"
 #include "arena.h"

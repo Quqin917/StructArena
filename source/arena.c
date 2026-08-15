@@ -2,11 +2,9 @@
 
 #include "arena.h"
 #include <stdint.h>
-#include <stdio.h>
+#include <stdlib.h>
 
 #define ARENA_DEFAULT_SIZE (MEGABYTE_SIZE * 2u) // 2 MB
-
-#include <stdlib.h>
 
 static Region *createRegion(size_t capacity);
 

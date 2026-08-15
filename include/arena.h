@@ -2,7 +2,6 @@
 #define ARENA_H
 
 #include <stddef.h> // For size_t
-#include <stdint.h> // For intptr_t
 
 #ifndef ARENA_ASSERT
 #include <assert.h> // for assert()
